@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Numérica Pro - Análisis Numérico Aplicado</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/10.0.0/math.min.js"></script>
+</head>
+<body>
+    <header>
+        <h1>🧪 Numérica Pro: Soluciones de Ingeniería</h1>
+        <p>Herramientas numéricas interactivas para problemas de la vida real.</p>
+    </header>
+
+    <main>
+        <nav class="tabs-nav">
+            <button class="tab-button active" onclick="openTab('secante')">1. Método de la Secante (Ajuste de Datos)</button>
+            <button class="tab-button" onclick="openTab('nr')">2. Newton-Raphson (Tasa TIR)</button>
+            <button class="tab-button" onclick="openTab('rk4')">3. Runge-Kutta 4 (Trayectoria)</button>
+        </nav>
+
+        <div class="tabs-container">
+
+            <section id="secante" class="tab-content active">
+                <h2>1. Método de la Secante - Ajuste de Datos y Diseño</h2>
+                <p class="description">Encuentra la **raíz de la función** <span class="math-display">f(x)=0</span> usando dos puntos iniciales, ideal para ajuste de curvas o ingeniería.</p>
+                <div class="controls-grid">
+                    <div>
+                        <label for="sec-f-x">Función <span class="math-inline">f(x)</span> (Ej: <span class="math-inline">x^3 - 4x - 9</span>):</label>
+                        <input type="text" id="sec-f-x" value="x^3 - 4 * x - 9">
+                        <p class="syntax-tip">**Tip:** Usa `pow(x, 2)` para exponentes (Ej: `x^2`).</p>
+                    </div>
+                    <div>
+                        <label for="sec-x0">Valor Inicial <span class="math-inline">x_{i-1}</span> (<span class="math-inline">x_0</span>):</label>
+                        <input type="number" id="sec-x0" value="2" step="0.1">
+                    </div>
+                    <div>
+                        <label for="sec-x1">Valor Inicial <span class="math-inline">x_{i}</span> (<span class="math-inline">x_1</span>):</label>
+                        <input type="number" id="sec-x1" value="3" step="0.1">
+                    </div>
+                    <div>
+                        <label for="sec-error">Tolerancia (<span class="math-inline">\epsilon</span>):</label>
+                        <input type="number" id="sec-error" value="0.0001" step="0.00001">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularSecante()">Calcular Raíz</button>
+                </div>
+
+                <div class="results-layout">
+                    <div class="table-output">
+                        <h3>Tabla de Iteraciones</h3>
+                        <table>
+                            <thead><tr><th>k</th><th><span class="math-inline">x_{i-1}</span></th><th><span class="math-inline">x_i</span></th><th><span class="math-inline">x_{i+1}</span> (Raíz)</th><th>Error Abs.</th></tr></thead>
+                            <tbody id="sec-iterations-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-output">
+                        <h3>Gráfico de Convergencia</h3>
+                        <canvas id="secChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="nr" class="tab-content">
+                <h2>2. Newton-Raphson - Tasa Interna de Retorno (TIR)</h2>
+                <p class="description">Calcula la tasa de interés <span class="math-inline">r</span> que hace que el **Valor Actual Neto (VAN)** de los flujos de caja sea cero.</p>
+                
+                <div class="controls-grid">
+                    <div>
+                        <label for="nr-investment">Inversión Inicial (<span class="math-inline">I_0</span>):</label>
+                        <input type="number" id="nr-investment" value="-1000" step="100">
+                    </div>
+                    <div>
+                        <label for="nr-flows">Flujos de Caja (Separados por coma, Ej: 300, 400, 500):</label>
+                        <input type="text" id="nr-flows" value="300, 400, 500">
+                    </div>
+                    <div>
+                        <label for="nr-r0">Tasa Inicial (<span class="math-inline">r_0</span>, decimal):</label>
+                        <input type="number" id="nr-r0" value="0.1" step="0.01">
+                    </div>
+                    <div>
+                        <label for="nr-error">Tolerancia (<span class="math-inline">\epsilon</span>):</label>
+                        <input type="number" id="nr-error" value="0.00001" step="0.000001">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularNewtonRaphsonTIR()">Calcular TIR</button>
+                </div>
+
+                <div class="results-layout">
+                    <div class="table-output">
+                        <h3>Tabla de Iteraciones</h3>
+                        <table>
+                            <thead><tr><th>k</th><th><span class="math-inline">r_k</span></th><th>VAN(<span class="math-inline">r_k</span>)</th><th>VAN'(<span class="math-inline">r_k</span>)</th><th>Error Abs.</th></tr></thead>
+                            <tbody id="nr-iterations-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-output">
+                        <h3>Gráfico de VAN vs Tasa (<span class="math-inline">r</span>)</h3>
+                        <canvas id="nrChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section id="rk4" class="tab-content">
+                <h2>3. Runge-Kutta 4 (RK4) - Trayectoria de Proyectil</h2>
+                <p class="description">Simula la trayectoria de un proyectil modelada por la EDO <span class="math-display">dy/dt = f(t, y)</span>.</p>
+
+                <div class="controls-grid">
+                    <div>
+                        <label for="rk4-f-ty">EDO <span class="math-inline">dy/dt = f(t, y)</span> (Ej: <span class="math-inline">y - t^2 + 1</span>):</label>
+                        <input type="text" id="rk4-f-ty" value="y - t^2 + 1">
+                        <p class="syntax-tip">**Tip:** Usa pow(t, 2) para exponentes (Ej: `t^2`).</p>
+                    </div>
+                    <div>
+                        <label for="rk4-t0">Tiempo Inicial (<span class="math-inline">t_0</span>):</label>
+                        <input type="number" id="rk4-t0" value="0" step="0.1">
+                    </div>
+                    <div>
+                        <label for="rk4-y0">Posición Inicial (<span class="math-inline">y_0</span>):</label>
+                        <input type="number" id="rk4-y0" value="0.5" step="0.1">
+                    </div>
+                    <div>
+                        <label for="rk4-tf">Tiempo Final (<span class="math-inline">t_f</span>):</label>
+                        <input type="number" id="rk4-tf" value="2" step="0.1">
+                    </div>
+                    <div>
+                        <label for="rk4-h">Tamaño de Paso (<span class="math-inline">h</span>):</label>
+                        <input type="number" id="rk4-h" value="0.2" step="0.01">
+                    </div>
+                    <button class="calculate-btn" onclick="calcularRungeKutta()">Simular Trayectoria</button>
+                </div>
+
+                <div class="results-layout">
+                    <div class="table-output">
+                        <h3>Puntos de la Simulación</h3>
+                        <table>
+                            <thead><tr><th>Paso (k)</th><th>Tiempo (<span class="math-inline">t_k</span>)</th><th>Posición (<span class="math-inline">y_k</span>)</th><th>K1</th><th>K2</th></tr></thead>
+                            <tbody id="rk4-iterations-body"></tbody>
+                        </table>
+                    </div>
+                    <div class="chart-output">
+                        <h3>Gráfico de Trayectoria <span class="math-inline">y(t)</span></h3>
+                        <canvas id="rk4Chart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
